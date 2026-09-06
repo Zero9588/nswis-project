@@ -1,32 +1,19 @@
-import os
-from pymongo import MongoClient
-from dotenv import load_dotenv
+from database import get_database_data
+from transformations import flatten_moguls_data
+from podiums import get_event_podiums, get_podium_runs
 
-load_dotenv()
+data = get_database_data()
+print(f"Retrieved {len(data)} documents from MongoDB")
 
-uri = os.getenv("MONGODB_URI")
+flat_df = flatten_moguls_data(data)
+flat_df.to_csv("moguls_flat.csv", index=False)
+print(flat_df.head())
+print("Saved moguls_flat.csv")
 
-print("URI loaded:", uri is not None)
+podiums = get_event_podiums(flat_df)
+podiums.to_csv("event_podiums.csv", index=False)
+print(f"Saved {len(podiums)} podium finishers to event_podiums.csv")
 
-client = MongoClient(uri)
-
-client.admin.command("ping")
-print("Connected to MongoDB!")
-print("Databases:", client.list_database_names())
-
-db = client["Interview"]
-collection = db["MogulsData"]
-
-expected_count = collection.count_documents({})
-data = list(collection.find())
-print(f"Collection documents: {expected_count}; exported documents: {len(data)}")
-if len(data) != expected_count:
-    raise RuntimeError("Collection count changed during export; rerun to verify completeness.")
-
-import pandas as pd
-
-df = pd.DataFrame(data)
-df.to_csv("mongodb_data.csv", index=False)
-
-print(df.head())
-print("Saved mongodb_data.csv")
+podium_runs = get_podium_runs(flat_df)
+podium_runs.to_csv("podium_runs.csv", index=False)
+print(f"Saved {len(podium_runs)} podium finishers' runs to podium_runs.csv")
