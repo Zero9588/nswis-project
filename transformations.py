@@ -18,6 +18,7 @@ def flatten_moguls_data(data):
         "event.level": "round",
         "athlete.name": "athlete",
         "athlete.fis_code": "fis_code",
+        "athlete.nsa_code": "country",
         "athlete.rank": "rank",
         "run.run_score": "run_score",
         "run.time_points": "time_points",
