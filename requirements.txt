@@ -2,3 +2,6 @@ pymongo
 python-dotenv
 pandas
 matplotlib
+streamlit>=1.50,<2
+altair>=5,<7
+numpy

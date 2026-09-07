@@ -2,7 +2,7 @@ from pathlib import Path
 
 from database import get_database_data
 from transformations import flatten_moguls_data
-from podiums import get_event_podiums, get_podium_runs
+from podiums import get_athlete_standings, get_event_podiums, get_podium_runs
 
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -14,6 +14,15 @@ flat_df = flatten_moguls_data(data)
 flat_df.to_csv(OUTPUT_DIR / "moguls_flat.csv", index=False)
 print(flat_df.head())
 print("Saved outputs/moguls_flat.csv")
+
+standings = get_athlete_standings(flat_df)
+standings.to_csv(OUTPUT_DIR / "athlete_standings.csv", index=False)
+print("\nTop 10 athletes per discipline, ordered by final wins then podium finishes")
+print("Podium finishes include final ranks 1, 2 and 3 (including wins).")
+for discipline, athletes in standings.groupby("discipline", sort=True):
+    print(f"\n{discipline}")
+    print(athletes.head(10).drop(columns="discipline").to_string(index=False))
+print("\nSaved all podium athletes to outputs/athlete_standings.csv")
 
 aus_runs = flat_df.loc[flat_df["country"].eq("AUS")].copy()
 aus_runs = aus_runs.sort_values(
